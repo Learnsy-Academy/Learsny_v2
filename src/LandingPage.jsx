@@ -9,7 +9,7 @@ const PARTICLES = Array.from({ length: 30 }, (_, i) => i);
 
 const SOCIAL_LINKS = [
   { icon: Linkedin, href: "https://www.linkedin.com/company/learnsy-academy/posts/?feedView=all", label: "LinkedIn" },
-  { icon: Instagram, href: "#", label: "Instagram" },
+  // { icon: Instagram, href: "#", label: "Instagram" },
 ];
 
 
