@@ -4,13 +4,16 @@ import { MessageCircle, Instagram, Linkedin, Sparkles, GraduationCap, BookOpen, 
 import { createClient } from "@supabase/supabase-js";
 
 
+
 const PARTICLES = Array.from({ length: 30 }, (_, i) => i);
+
 
 
 const SOCIAL_LINKS = [
   { icon: Linkedin, href: "https://www.linkedin.com/company/learnsy-academy/posts/?feedView=all", label: "LinkedIn" },
-  // { icon: Instagram, href: "#", label: "Instagram" },
+  {icon: Instagram, href: "https://www.instagram.com/learnsy_academy?igsh=MXF6eWh0ZTJxM3IyNg==", label: "Instagram" },
 ];
+
 
 
 const FLOATING_ICONS = [
@@ -21,10 +24,12 @@ const FLOATING_ICONS = [
 ];
 
 
+
 // Initialize Supabase
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 const supabase = createClient(supabaseUrl, supabaseKey);
+
 
 
 export default function ComingSoon() {
@@ -34,15 +39,18 @@ export default function ComingSoon() {
   const [error, setError] = useState("");
 
 
+
   const validateEmail = (emailStr) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(emailStr);
   };
 
 
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
+
 
 
     if (!email.trim()) {
@@ -51,10 +59,12 @@ export default function ComingSoon() {
     }
 
 
+
     if (!validateEmail(email)) {
       setError("Please enter a valid email address");
       return;
     }
+
 
 
     setIsLoading(true);
@@ -70,6 +80,7 @@ export default function ComingSoon() {
         ]);
 
 
+
       if (supabaseError) {
         // Check if email already exists
         if (supabaseError.code === "23505") {
@@ -83,9 +94,11 @@ export default function ComingSoon() {
       }
 
 
+
       // Show success message
       setSubmitted(true);
       setEmail("");
+
 
 
       // Reset success message after 50 seconds
@@ -97,6 +110,7 @@ export default function ComingSoon() {
       setIsLoading(false);
     }
   };
+
 
 
   return (
@@ -120,6 +134,7 @@ export default function ComingSoon() {
       />
 
 
+
       <motion.div
         className="absolute inset-0"
         style={{
@@ -136,6 +151,7 @@ export default function ComingSoon() {
           ease: "easeInOut",
         }}
       />
+
 
 
       {/* Floating Golden Particles */}
@@ -164,6 +180,7 @@ export default function ComingSoon() {
       </div>
 
 
+
       {/* Floating Education Icons */}
       {FLOATING_ICONS.map((item, index) => (
         <motion.div
@@ -187,6 +204,7 @@ export default function ComingSoon() {
           />
         </motion.div>
       ))}
+
 
 
       {/* Main Content Container - Optimized for all screens */}
@@ -214,6 +232,7 @@ export default function ComingSoon() {
           </motion.div>
 
 
+
           {/* Main Heading - Responsive */}
           <motion.div
             initial={{ opacity: 0 }}
@@ -237,6 +256,7 @@ export default function ComingSoon() {
           </motion.div>
 
 
+
           {/* Subtitle - Responsive */}
           <motion.p
             initial={{ opacity: 0, y: 20 }}
@@ -246,6 +266,7 @@ export default function ComingSoon() {
           >
             Receive Exclusive Launch Updates and Notifications
           </motion.p>
+
 
 
           {/* Email Form */}
@@ -262,9 +283,9 @@ export default function ComingSoon() {
                   initial={{ opacity: 1 }}
                   exit={{ opacity: 0, y: -20 }}
                   onSubmit={handleSubmit}
-                  className="relative space-y-2"
+                  className="relative space-y-2 flex flex-col items-center"
                 >
-                  <div className="relative flex flex-col sm:flex-row gap-1 sm:gap-2 md:gap-1 lg:gap-3 bg-gray-50 rounded-lg sm:rounded-xl md:rounded-lg lg:rounded-xl p-1 border-2 border-gray-200 shadow-lg">
+                  <div className="relative flex flex-col w-full gap-2 bg-gray-50 rounded-lg sm:rounded-xl md:rounded-lg lg:rounded-xl p-2 border-2 border-gray-200 shadow-lg">
                     <input
                       type="email"
                       placeholder="Enter your email address..."
@@ -273,7 +294,7 @@ export default function ComingSoon() {
                         setEmail(e.target.value);
                         setError("");
                       }}
-                      className="flex-1 bg-white border-0 text-black placeholder:text-gray-400 h-9 sm:h-10 md:h-10 lg:h-12 px-2 sm:px-4 md:px-3 lg:px-5 text-xs sm:text-xs md:text-xs lg:text-base rounded-lg focus:outline-none focus:ring-2 focus:ring-[#F5B800] focus:ring-offset-0 transition-all"
+                      className="w-full bg-white border-0 text-black placeholder:text-gray-400 h-14 sm:h-12 md:h-12 lg:h-14 px-4 sm:px-4 md:px-4 lg:px-6 text-sm sm:text-xs md:text-xs lg:text-base rounded-lg focus:outline-none focus:ring-2 focus:ring-[#F5B800] focus:ring-offset-0 transition-all"
                       required
                     />
                     <motion.button
@@ -281,7 +302,7 @@ export default function ComingSoon() {
                       disabled={isLoading}
                       whileHover={{ scale: isLoading ? 1 : 1.03 }}
                       whileTap={{ scale: isLoading ? 1 : 0.98 }}
-                      className="relative h-9 sm:h-10 md:h-10 lg:h-12 px-3 sm:px-6 md:px-4 lg:px-8 rounded-lg bg-gradient-to-r from-[#F5B800] via-[#FFC107] to-[#FFD54F] hover:from-[#FFC107] hover:via-[#FFD54F] hover:to-[#F5B800] text-black font-bold text-xs sm:text-xs md:text-xs lg:text-base shadow-lg shadow-[#F5B800]/40 hover:shadow-xl hover:shadow-[#F5B800]/60 transition-all duration-300 border-0 overflow-hidden disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2 whitespace-nowrap"
+                      className="relative h-9 w-32 sm:w-40 md:w-40 lg:w-48 mx-auto rounded-lg bg-gradient-to-r from-[#F5B800] via-[#FFC107] to-[#FFD54F] hover:from-[#FFC107] hover:via-[#FFD54F] hover:to-[#F5B800] text-black font-bold text-xs sm:text-sm md:text-sm lg:text-base shadow-lg shadow-[#F5B800]/40 hover:shadow-xl hover:shadow-[#F5B800]/60 transition-all duration-300 border-0 overflow-hidden disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-1 sm:gap-2 whitespace-nowrap"
                     >
                       <motion.div
                         className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent"
@@ -302,7 +323,7 @@ export default function ComingSoon() {
                             repeat: Infinity,
                             ease: "linear",
                           }}
-                          className="w-5 h-5 border-2 border-black/80 border-t-transparent rounded-full relative z-10"
+                          className="w-3 h-3 sm:w-4 sm:h-4 border-2 border-black/80 border-t-transparent rounded-full relative z-10"
                         />
                       ) : (
                         <span className="relative z-10">Notify me</span>
@@ -356,6 +377,7 @@ export default function ComingSoon() {
           </motion.div>
 
 
+
           {/* Social Links - Only show after submission */}
           <AnimatePresence>
             {submitted && (
@@ -400,6 +422,7 @@ export default function ComingSoon() {
           </AnimatePresence>
 
 
+
           {/* Enhanced Coming Soon Badge - Responsive */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -421,6 +444,7 @@ export default function ComingSoon() {
                   ease: "easeInOut",
                 }}
               />
+
 
 
               <motion.div
@@ -450,6 +474,7 @@ export default function ComingSoon() {
                 />
 
 
+
                 <div className="relative flex items-center gap-1.5 sm:gap-2 md:gap-1.5 lg:gap-3 justify-center flex-wrap">
                   {/* Rotating sparkles - Responsive */}
                   <motion.div
@@ -470,6 +495,7 @@ export default function ComingSoon() {
                   </motion.div>
 
 
+
                   <motion.div
                     className="flex items-center gap-1.5 sm:gap-2"
                     animate={{
@@ -485,6 +511,7 @@ export default function ComingSoon() {
                       Something Amazing Is Coming Soon
                     </span>
                   </motion.div>
+
 
 
                   <motion.div
