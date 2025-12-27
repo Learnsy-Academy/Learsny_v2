@@ -1,20 +1,19 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { MessageCircle, Instagram, Linkedin, Sparkles, GraduationCap, BookOpen, Award, CheckCircle2, Zap, Rocket } from "lucide-react";
-import { createClient } from "@supabase/supabase-js";
-
-
+import { 
+  CheckCircle2, 
+  Clock,
+  Calendar,
+  Gift,
+  Users,
+  Rocket,
+  Sparkles,
+  GraduationCap,
+  BookOpen,
+  Award
+} from "lucide-react";
 
 const PARTICLES = Array.from({ length: 30 }, (_, i) => i);
-
-
-
-const SOCIAL_LINKS = [
-  { icon: Linkedin, href: "https://www.linkedin.com/company/learnsy-academy/posts/?feedView=all", label: "LinkedIn" },
-  {icon: Instagram, href: "https://www.instagram.com/learnsy_academy?igsh=MXF6eWh0ZTJxM3IyNg==", label: "Instagram" },
-];
-
-
 
 const FLOATING_ICONS = [
   { icon: Sparkles, x: "8%", y: "15%", duration: 20 },
@@ -23,98 +22,152 @@ const FLOATING_ICONS = [
   { icon: GraduationCap, x: "85%", y: "75%", duration: 19 },
 ];
 
+const CountdownTimer = () => {
+  const [timeLeft, setTimeLeft] = useState({
+    days: 0,
+    hours: 0,
+    minutes: 0,
+    seconds: 0,
+  });
 
+  useEffect(() => {
+    const calculateTimeLeft = () => {
+      const launchDate = new Date("2026-01-21T16:00:00+01:00"); // 4:00 PM BST
+      const now = new Date();
+      const difference = launchDate - now;
 
-// Initialize Supabase
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-const supabase = createClient(supabaseUrl, supabaseKey);
-
-
-
-export default function ComingSoon() {
-  const [email, setEmail] = useState("");
-  const [submitted, setSubmitted] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
-
-
-
-  const validateEmail = (emailStr) => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(emailStr);
-  };
-
-
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError("");
-
-
-
-    if (!email.trim()) {
-      setError("Please enter your email");
-      return;
-    }
-
-
-
-    if (!validateEmail(email)) {
-      setError("Please enter a valid email address");
-      return;
-    }
-
-
-
-    setIsLoading(true);
-    try {
-      // Insert email into Supabase
-      const { data, error: supabaseError } = await supabase
-        .from("subscribers")
-        .insert([
-          {
-            email: email.toLowerCase(),
-            subscribed_at: new Date().toISOString(),
-          },
-        ]);
-
-
-
-      if (supabaseError) {
-        // Check if email already exists
-        if (supabaseError.code === "23505") {
-          setError("This email is already subscribed!");
-        } else {
-          setError("Failed to subscribe. Please try again.");
-          console.error("Supabase error:", supabaseError);
-        }
-        setIsLoading(false);
-        return;
+      if (difference > 0) {
+        setTimeLeft({
+          days: Math.floor(difference / (1000 * 60 * 60 * 24)),
+          hours: Math.floor((difference / (1000 * 60 * 60)) % 24),
+          minutes: Math.floor((difference / 1000 / 60) % 60),
+          seconds: Math.floor((difference / 1000) % 60),
+        });
       }
+    };
 
+    calculateTimeLeft();
+    const timer = setInterval(calculateTimeLeft, 1000);
 
-
-      // Show success message
-      setSubmitted(true);
-      setEmail("");
-
-
-
-      // Reset success message after 50 seconds
-      setTimeout(() => setSubmitted(false), 50000);
-    } catch (err) {
-      setError("Something went wrong. Please try again.");
-      console.error("Error:", err);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-
+    return () => clearInterval(timer);
+  }, []);
 
   return (
-    <div className="min-h-screen relative overflow-hidden flex items-center justify-center bg-white">
+    <div className="flex justify-center gap-4 md:gap-8">
+      {[
+        { label: "Days", value: timeLeft.days },
+        { label: "Hours", value: timeLeft.hours },
+        { label: "Minutes", value: timeLeft.minutes },
+        { label: "Seconds", value: timeLeft.seconds },
+      ].map((item, index) => (
+        <motion.div
+          key={item.label}
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5, delay: index * 0.1 }}
+          className="relative"
+        >
+          <motion.div 
+            className="absolute inset-0 blur-xl opacity-30 rounded-2xl"
+            style={{ background: '#F5B800' }}
+            animate={{ scale: [1, 1.1, 1] }}
+            transition={{ duration: 2, repeat: Infinity }}
+          />
+          <motion.div 
+            className="relative bg-white rounded-2xl p-4 md:p-6 min-w-[70px] md:min-w-[100px] shadow-2xl"
+            style={{ borderWidth: '3px', borderColor: '#F5B800' }}
+            whileHover={{ scale: 1.05, rotate: [0, -2, 2, 0] }}
+            transition={{ duration: 0.3 }}
+          >
+            <motion.div
+              key={item.value}
+              initial={{ y: -20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              className="text-3xl md:text-5xl font-black"
+              style={{ color: '#F5B800' }}
+            >
+              {String(item.value).padStart(2, "0")}
+            </motion.div>
+            <div className="text-xs md:text-sm text-gray-600 mt-2 uppercase tracking-wider font-bold">
+              {item.label}
+            </div>
+          </motion.div>
+        </motion.div>
+      ))}
+    </div>
+  );
+};
+
+const EventPathItem = ({ icon: Icon, title, description, delay, isLast }) => (
+  <motion.div
+    initial={{ opacity: 0, x: -30 }}
+    animate={{ opacity: 1, x: 0 }}
+    transition={{ duration: 0.6, delay }}
+    className="relative flex gap-6 group"
+  >
+    {/* Connector Line */}
+    {!isLast && (
+      <motion.div 
+        className="absolute left-6 top-16 w-0.5 h-full"
+        style={{ background: '#F5B800' }}
+        initial={{ scaleY: 0 }}
+        animate={{ scaleY: 1 }}
+        transition={{ duration: 0.5, delay: delay + 0.3 }}
+      />
+    )}
+    
+    {/* Icon Circle */}
+    <div className="relative z-10 flex-shrink-0">
+      <motion.div
+        whileHover={{ scale: 1.15, rotate: 360 }}
+        className="w-12 h-12 rounded-full flex items-center justify-center shadow-xl"
+        style={{ background: '#F5B800' }}
+        animate={{ 
+          boxShadow: [
+            '0 10px 30px rgba(245, 184, 0, 0.3)',
+            '0 10px 40px rgba(245, 184, 0, 0.5)',
+            '0 10px 30px rgba(245, 184, 0, 0.3)'
+          ]
+        }}
+        transition={{ duration: 2, repeat: Infinity }}
+      >
+        <Icon className="w-6 h-6 text-white" />
+      </motion.div>
+    </div>
+    
+    {/* Content */}
+    <div className="flex-1 pb-12">
+      <h3 className="text-gray-900 font-semibold text-xl mb-2">{title}</h3>
+      <p className="text-gray-600 leading-relaxed">{description}</p>
+    </div>
+  </motion.div>
+);
+
+export default function LandingPage() {
+  const [isRegistered, setIsRegistered] = useState(false);
+
+  // Scroll to top when component mounts
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
+  const handleRegisterClick = () => {
+    window.open("https://luma.com/bl9cnl8l?fbclid=PAb21jcAO8jOpleHRuA2FlbQIxMQBzcnRjBmFwcF9pZA81NjcwNjczNDMzNTI0MjcAAadfxypcJG_JbHAX8sJnPP6eXE-aNzwTy0YfVcooU9M9oUxdkTYhDRyGDnjHXg_aem_mZq5m7HGOXkmV-dofZgteg&tk=kFR1Pk&utm_content=link_in_bio&utm_medium=social&utm_source=ig", "_blank");
+    setIsRegistered(true);
+  };
+
+  return (
+    <div className="min-h-screen relative overflow-hidden bg-white">
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap');
+        
+        * {
+          font-family: 'Poppins', sans-serif;
+        }
+      `}</style>
+
+      {/* BACKGROUND ANIMATIONS START */}
+      
       {/* Subtle golden gradient overlays */}
       <motion.div
         className="absolute inset-0"
@@ -133,8 +186,6 @@ export default function ComingSoon() {
         }}
       />
 
-
-
       <motion.div
         className="absolute inset-0"
         style={{
@@ -151,8 +202,6 @@ export default function ComingSoon() {
           ease: "easeInOut",
         }}
       />
-
-
 
       {/* Floating Golden Particles */}
       <div className="absolute inset-0 overflow-hidden">
@@ -179,8 +228,6 @@ export default function ComingSoon() {
         ))}
       </div>
 
-
-
       {/* Floating Education Icons */}
       {FLOATING_ICONS.map((item, index) => (
         <motion.div
@@ -205,337 +252,215 @@ export default function ComingSoon() {
         </motion.div>
       ))}
 
+      {/* BACKGROUND ANIMATIONS END */}
 
-
-      {/* Main Content Container - Optimized for all screens */}
-      <div className="relative z-10 w-full max-w-2xl sm:max-w-2xl md:max-w-xl lg:max-w-3xl mx-auto px-2 sm:px-4 md:px-3 py-4 sm:py-6 md:py-4 lg:py-12">
-        <div className="text-center space-y-2 sm:space-y-3 md:space-y-3 lg:space-y-6">
-          {/* Logo - Responsive Size */}
-          <motion.div
-            initial={{ scale: 0, rotate: -180 }}
-            animate={{ scale: 1, rotate: 0 }}
-            transition={{
-              type: "spring",
-              stiffness: 200,
-              damping: 20,
-              delay: 0.2,
-            }}
-            className="flex justify-center -mt-10 sm:-mt-12 md:-mt-8 lg:-mt-30 -mb-2 sm:-mb-3 md:-mb-2 lg:-mb-6"
-          >
-            <div className="relative inline-block">
+      {/* Main Content */}
+      <div className="relative z-10">
+        {/* Header */}
+        <motion.header
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+          className="pt-12 px-6"
+        >
+          <div className="max-w-6xl mx-auto flex justify-center">
+            <motion.div
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ 
+                scale: 1, 
+                opacity: 1
+              }}
+              transition={{ 
+                duration: 0.6,
+                delay: 0.2
+              }}
+            >
               <img
                 src="/_Learnsy.png"
-                alt="Learr Academy Logo"
-                className="w-24 sm:w-28 md:w-28 lg:w-40 h-24 sm:h-28 md:h-28 lg:h-40 object-contain"
+                alt="Learnsy Academy"
+                className="h-16 md:h-24 object-contain drop-shadow-2xl"
               />
-            </div>
-          </motion.div>
+            </motion.div>
+          </div>
+        </motion.header>
 
-
-
-          {/* Main Heading - Responsive */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.3 }}
-            className="space-y-0 -mt-1 sm:-mt-2 md:-mt-1"
-          >
-            <motion.h1
+        {/* Hero Section */}
+        <main className="px-6 pt-16 pb-24">
+          <div className="max-w-6xl mx-auto">
+            {/* Main Headline */}
+            <motion.div
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4, duration: 0.8 }}
-              className="text-xl sm:text-2xl md:text-2xl lg:text-5xl xl:text-6xl font-extrabold leading-tight tracking-tight"
+              transition={{ duration: 0.8, delay: 0.4 }}
+              className="text-center mb-12"
             >
-              <span className="block text-black">Get Notified When</span>
-              <span className="block">
-                <span className="bg-gradient-to-r from-[#F5B800] via-[#FFC107] to-[#FFD54F] bg-clip-text text-transparent">
-                We&apos;re Launching!
-                </span>
-              </span>
-            </motion.h1>
-          </motion.div>
-
-
-
-          {/* Subtitle - Responsive */}
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.6, duration: 0.8 }}
-            className="text-xs sm:text-xs md:text-xs lg:text-lg max-w-md sm:max-w-md md:max-w-sm lg:max-w-xl mx-auto font-light leading-relaxed -mt-1 sm:-mt-1 md:-mt-1 lg:-mt-4 px-1 sm:px-2 md:px-1"
-          >
-            Receive Exclusive Launch Updates and Notifications
-          </motion.p>
-
-
-
-          {/* Email Form */}
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.8, duration: 0.8 }}
-            className="max-w-sm sm:max-w-sm md:max-w-xs lg:max-w-xl mx-auto mt-2 sm:mt-4 md:mt-2 lg:mt-8"
-          >
-            <AnimatePresence mode="wait">
-              {!submitted ? (
-                <motion.form
-                  key="form"
-                  initial={{ opacity: 1 }}
-                  exit={{ opacity: 0, y: -20 }}
-                  onSubmit={handleSubmit}
-                  className="relative space-y-2 flex flex-col items-center"
-                >
-                  <div className="relative flex flex-col w-full gap-2 bg-gray-50 rounded-lg sm:rounded-xl md:rounded-lg lg:rounded-xl p-2 border-2 border-gray-200 shadow-lg">
-                    <input
-                      type="email"
-                      placeholder="Enter your email address..."
-                      value={email}
-                      onChange={(e) => {
-                        setEmail(e.target.value);
-                        setError("");
-                      }}
-                      className="w-full bg-white border-0 text-black placeholder:text-gray-400 h-14 sm:h-12 md:h-12 lg:h-14 px-4 sm:px-4 md:px-4 lg:px-6 text-sm sm:text-xs md:text-xs lg:text-base rounded-lg focus:outline-none focus:ring-2 focus:ring-[#F5B800] focus:ring-offset-0 transition-all"
-                      required
-                    />
-                    <motion.button
-                      type="submit"
-                      disabled={isLoading}
-                      whileHover={{ scale: isLoading ? 1 : 1.03 }}
-                      whileTap={{ scale: isLoading ? 1 : 0.98 }}
-                      className="relative h-9 w-32 sm:w-40 md:w-40 lg:w-48 mx-auto rounded-lg bg-gradient-to-r from-[#F5B800] via-[#FFC107] to-[#FFD54F] hover:from-[#FFC107] hover:via-[#FFD54F] hover:to-[#F5B800] text-black font-bold text-xs sm:text-sm md:text-sm lg:text-base shadow-lg shadow-[#F5B800]/40 hover:shadow-xl hover:shadow-[#F5B800]/60 transition-all duration-300 border-0 overflow-hidden disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-1 sm:gap-2 whitespace-nowrap"
-                    >
-                      <motion.div
-                        className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent"
-                        animate={{
-                          x: ["-100%", "200%"],
-                        }}
-                        transition={{
-                          duration: 2,
-                          repeat: Infinity,
-                          ease: "linear",
-                        }}
-                      />
-                      {isLoading ? (
-                        <motion.div
-                          animate={{ rotate: 360 }}
-                          transition={{
-                            duration: 1,
-                            repeat: Infinity,
-                            ease: "linear",
-                          }}
-                          className="w-3 h-3 sm:w-4 sm:h-4 border-2 border-black/80 border-t-transparent rounded-full relative z-10"
-                        />
-                      ) : (
-                        <span className="relative z-10">Notify me</span>
-                      )}
-                    </motion.button>
-                  </div>
-                  {error && (
-                    <motion.p
-                      initial={{ opacity: 0, y: -10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      className="text-red-500 text-xs sm:text-xs md:text-xs lg:text-sm font-medium px-4"
-                    >
-                      {error}
-                    </motion.p>
-                  )}
-                </motion.form>
-              ) : (
-                <motion.div
-                  key="success"
-                  initial={{ opacity: 0, scale: 0.9, y: 20 }}
-                  animate={{ opacity: 1, scale: 1, y: 0 }}
-                  transition={{ type: "spring", stiffness: 200, damping: 20 }}
-                  className="bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-400 rounded-lg sm:rounded-xl md:rounded-lg lg:rounded-xl p-4 sm:p-6 md:p-4 lg:p-6 shadow-xl max-w-xs sm:max-w-sm md:max-w-xs lg:max-w-sm mx-auto py-2 sm:py-3 md:py-2 lg:py-3"
-                >
-                  <div className="flex flex-col items-center gap-2 sm:gap-3 md:gap-2 lg:gap-3">
-                    <motion.div
-                      initial={{ scale: 0 }}
-                      animate={{ scale: 1 }}
-                      transition={{
-                        type: "spring",
-                        stiffness: 300,
-                        damping: 15,
-                        delay: 0.1,
-                      }}
-                      className="bg-green-500 p-2 sm:p-3 md:p-2 lg:p-3 rounded-full"
-                    >
-                      <CheckCircle2 className="w-6 sm:w-8 md:w-6 lg:w-8 h-6 sm:h-8 md:h-6 lg:h-8 text-white" />
-                    </motion.div>
-                    <div className="text-center">
-                      <h3 className="text-black text-base sm:text-xl md:text-base lg:text-xl font-bold mb-0.5 sm:mb-1 md:mb-0.5">
-                        You&apos;re on the list!
-                      </h3>
-                      <p className="text-gray-600 text-xs sm:text-sm md:text-xs lg:text-sm">
-                        We&apos;ll notify you as soon as we launch
-                      </p>
-                    </div>
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </motion.div>
-
-
-
-          {/* Social Links - Only show after submission */}
-          <AnimatePresence>
-            {submitted && (
-              <motion.div
+              <motion.h1 
+                className="text-4xl md:text-5xl lg:text-6xl font-extrabold leading-tight mb-6"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.3, duration: 0.8 }}
-                className="pt-1 sm:pt-2 md:pt-1 lg:pt-2"
+                transition={{ duration: 0.8, delay: 0.2 }}
               >
-                <div className="flex justify-center items-center gap-3 sm:gap-4 md:gap-3 lg:gap-4 flex-wrap">
-                  <span className="text-gray-600 text-xs sm:text-sm md:text-xs lg:text-base font-semibold">Follow us on</span>
-                  {SOCIAL_LINKS.map((social, index) => (
-                    <motion.a
-                      key={social.label}
-                      href={social.href}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      initial={{ opacity: 0, scale: 0 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      transition={{
-                        delay: 0.3 + index * 0.1,
-                        type: "spring",
-                        stiffness: 200,
-                        damping: 15,
-                      }}
-                      whileHover={{
-                        scale: 1.15,
-                        y: -5,
-                      }}
+                <span className="text-gray-900">We're launching on </span>
+                <span 
+                  style={{ color: '#F5B800' }}
+                >
+                  21st Jan 2026
+                </span>
+              </motion.h1>
+              <motion.div 
+                className="flex flex-col items-center gap-3 mb-8"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.4 }}
+              >
+                <div 
+                  className="flex items-center gap-2 text-xl md:text-2xl"
+                  style={{ color: '#F5B800' }}
+                >
+                  <Clock className="w-6 h-6" />
+                  <span className="font-bold">4:00 PM BST</span>
+                </div>
+                <p className="text-gray-600 text-base md:text-lg max-w-xl mx-auto">
+                  Register here to join us for the event
+                </p>
+              </motion.div>
+            </motion.div>
+
+            {/* Countdown Timer */}
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.6 }}
+              className="mb-16"
+            >
+              <CountdownTimer />
+            </motion.div>
+
+            {/* Register Button */}
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.8 }}
+              className="max-w-md mx-auto mb-20"
+            >
+              <AnimatePresence mode="wait">
+                {!isRegistered ? (
+                  <motion.div
+                    key="button"
+                    exit={{ opacity: 0, scale: 0.95 }}
+                    className="text-center"
+                  >
+                    <motion.button
+                      onClick={handleRegisterClick}
+                      whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
-                      className="group relative"
+                      className="text-white font-bold text-base md:text-lg h-14 px-16 rounded-full transition-all duration-300 shadow-xl"
+                      style={{ 
+                        background: '#F5B800',
+                        boxShadow: '0 8px 30px rgba(245, 184, 0, 0.4)'
+                      }}
                     >
-                      <motion.div className="absolute inset-0 bg-gradient-to-r from-[#F5B800] to-[#FFC107] rounded-full blur-md opacity-0 group-hover:opacity-50 transition-opacity duration-300" />
-                      <div className="relative w-9 sm:w-11 md:w-9 lg:w-11 h-9 sm:h-11 md:h-9 lg:h-11 flex items-center justify-center rounded-full bg-gray-100 border-2 border-gray-200 group-hover:bg-white group-hover:border-[#F5B800] transition-all duration-300 shadow-sm group-hover:shadow-md">
-                        <social.icon className="w-4 sm:w-5 md:w-4 lg:w-5 h-4 sm:h-5 md:h-4 lg:h-5 text-gray-600 group-hover:text-[#F5B800] transition-colors" />
-                      </div>
-                    </motion.a>
-                  ))}
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
+                      Register Now
+                    </motion.button>
+                    <p className="text-center text-gray-500 text-sm mt-4">
+                      Secure your spot for the launch event
+                    </p>
+                  </motion.div>
+                ) : (
+                  <motion.div
+                    key="success"
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="text-center"
+                  >
+                    <motion.div
+                      initial={{ scale: 0, rotate: -180 }}
+                      animate={{ 
+                        scale: 1,
+                        rotate: 0,
+                      }}
+                      transition={{ 
+                        type: "spring", 
+                        stiffness: 200, 
+                        damping: 15,
+                        rotate: { duration: 0.5 }
+                      }}
+                      className="w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-6 shadow-2xl"
+                      style={{ 
+                        background: '#F5B800',
+                        boxShadow: '0 20px 50px rgba(245, 184, 0, 0.5)'
+                      }}
+                    >
+                      <motion.div
+                        animate={{ scale: [1, 1.2, 1] }}
+                        transition={{ duration: 1, repeat: Infinity }}
+                      >
+                        <CheckCircle2 className="w-12 h-12 text-white" />
+                      </motion.div>
+                    </motion.div>
+                    <h3 className="text-2xl font-bold text-gray-900 mb-3">You're Registered!</h3>
+                    <p className="text-gray-600">
+                      We'll see you at the launch event on January 21st, 2026!
+                    </p>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </motion.div>
 
-
-
-          {/* Enhanced Coming Soon Badge - Responsive */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 1.3, duration: 0.8 }}
-            className="pt-2 sm:pt-3 md:pt-2 lg:pt-4"
-          >
-            <div className="relative inline-block">
-              {/* Animated background circles */}
-              <motion.div
-                className="absolute -inset-4 bg-[#F5B800] rounded-full blur-2xl opacity-10"
-                animate={{
-                  scale: [1, 1.3, 1],
-                  opacity: [0.1, 0.2, 0.1],
-                }}
-                transition={{
-                  duration: 4,
-                  repeat: Infinity,
-                  ease: "easeInOut",
-                }}
-              />
-
-
-
-              <motion.div
-                animate={{
-                  scale: [1, 1.02, 1],
-                  rotate: [0, 1, -1, 0],
-                }}
-                transition={{
-                  duration: 6,
-                  repeat: Infinity,
-                  ease: "easeInOut",
-                }}
-                className="relative bg-gradient-to-r from-white via-gray-50 to-white px-3 sm:px-4 md:px-3 lg:px-8 py-1.5 sm:py-2 md:py-1.5 lg:py-4 rounded-full border-2 border-[#F5B800]/50 shadow-2xl overflow-hidden"
+            {/* Event Journey Path */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.8, delay: 1.0 }}
+              className="max-w-3xl mx-auto mb-20"
+            >
+              <motion.h2 
+                className="text-3xl md:text-4xl font-bold text-center mb-12"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 1.0 }}
               >
-                {/* Animated shine effect */}
-                <motion.div
-                  className="absolute inset-0 bg-gradient-to-r from-transparent via-[#F5B800]/20 to-transparent"
-                  animate={{
-                    x: ["-200%", "200%"],
-                  }}
-                  transition={{
-                    duration: 3,
-                    repeat: Infinity,
-                    ease: "linear",
-                    repeatDelay: 1,
-                  }}
+                <motion.span 
+                  style={{ color: '#F5B800' }}
+                  animate={{ scale: [1, 1.03, 1] }}
+                  transition={{ duration: 3, repeat: Infinity }}
+                >
+                  What to Expect
+                </motion.span>
+              </motion.h2>
+              <div className="space-y-0">
+                <EventPathItem
+                  icon={Rocket}
+                  title="Official Launch Announcement"
+                  description="Be part of the moment when we unveil Learnsy Academy to the world. Exclusive first look at our platform and features."
+                  delay={1.1}
+                  isLast={false}
                 />
-
-
-
-                <div className="relative flex items-center gap-1.5 sm:gap-2 md:gap-1.5 lg:gap-3 justify-center flex-wrap">
-                  {/* Rotating sparkles - Responsive */}
-                  <motion.div
-                    animate={{
-                      rotate: [0, 360],
-                      scale: [1, 1.3, 1],
-                    }}
-                    transition={{
-                      duration: 4,
-                      repeat: Infinity,
-                      ease: "easeInOut",
-                    }}
-                  >
-                    <Sparkles
-                      className="w-3 sm:w-3 md:w-3 lg:w-5 h-3 sm:h-3 md:h-3 lg:h-5 text-[#F5B800]"
-                      fill="#F5B800"
-                    />
-                  </motion.div>
-
-
-
-                  <motion.div
-                    className="flex items-center gap-1.5 sm:gap-2"
-                    animate={{
-                      opacity: [0.8, 1, 0.8],
-                    }}
-                    transition={{
-                      duration: 2,
-                      repeat: Infinity,
-                      ease: "easeInOut",
-                    }}
-                  >
-                    <span className="text-black font-bold text-xs sm:text-xs md:text-xs lg:text-base bg-gradient-to-r from-black via-black-100 to-black bg-clip-text text-transparent">
-                      Something Amazing Is Coming Soon
-                    </span>
-                  </motion.div>
-
-
-
-                  <motion.div
-                    animate={{
-                      rotate: [360, 0],
-                      scale: [1, 1.3, 1],
-                    }}
-                    transition={{
-                      duration: 4,
-                      repeat: Infinity,
-                      ease: "easeInOut",
-                      delay: 0.5,
-                    }}
-                  >
-                    <Sparkles
-                      className="w-3 sm:w-3 md:w-3 lg:w-5 h-3 sm:h-3 md:h-3 lg:h-5 text-[#F5B800]"
-                      fill="#F5B800"
-                    />
-                  </motion.div>
-                </div>
-              </motion.div>
-            </div>
-          </motion.div>
-        </div>
+                <EventPathItem
+                  icon={Gift}
+                  title="Special Launch Offers"
+                  description="Early registrants will receive exclusive benefits, founding member perks, and limited-time discounts."
+                  delay={1.2}
+                  isLast={false}
+                />
+                <EventPathItem
+                  icon={Users}
+                  title="Meet the Team & Community"
+                  description="Connect with our instructors, meet fellow learners, and become part of a vibrant learning community."
+                  delay={1.3}
+                  isLast={false}
+                />
+                <EventPathItem
+                  icon={Calendar}
+                  title="Early Access"
+                  description="Registered attendees get immediate early access to our first courses and premium content."
+                  delay={1.4}
+                  isLast={true}
+                />
+              </div>
+            </motion.div>
+          </div>
+        </main>
       </div>
     </div>
   );
